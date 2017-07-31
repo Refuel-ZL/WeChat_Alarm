@@ -1,0 +1,23 @@
+{
+    "name": "sum",
+    "version": "1.0.0",
+    "description": "",
+    "main": "app.js",
+    "dependencies": {
+        "fs": "^0.0.1-security",
+        "log4js": "^2.3.2",
+        "moment-timezone": "^0.5.13",
+        "mssql": "^4.0.4"
+    },
+    "devDependencies": {
+        "babel-eslint": "^7.2.3",
+        "eslint": "^4.3.0",
+        "eslint-plugin-react": "^7.1.0"
+    },
+    "scripts": {
+        "start": "node app.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC"
+}
