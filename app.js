@@ -44,4 +44,9 @@ async function getalarm() {
     }
 }
 
-setInterval(getalarm, 1000)
+
+setTimeout(async function() {
+    // do something
+    await getalarm()
+    setTimeout(arguments.callee, 1000)
+}, 100)
