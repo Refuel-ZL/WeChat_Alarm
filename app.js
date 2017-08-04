@@ -6,15 +6,16 @@ const config = require("./config")
 async function getalarm() {
     var res = await count.alarm()
     if (res.length > 0) {
-        log4util.writeInfo(res)
-        res.forEach(function(item) {
-            log4util.writeInfo(item)
+        log4util.writeInfo(JSON.stringify(res))
+        res.forEach(async(item) => {
+            // log4util.writeInfo(item)
             try {
                 var content = JSON.parse(item.context)
                 var param = {
                     msg: JSON.stringify({
                         "type": content.groupType || "统计报告",
-                        "content": content.msg || item
+                        "content": content.msg || item,
+                        "name": content.name || null
                     })
                 }
                 param = require("querystring").stringify(param)
@@ -27,17 +28,17 @@ async function getalarm() {
                         "Content-Length": param.length
                     }
                 }
-                request(options, (err, res, body) => {
+                request(options, async(err, res, body) => {
                     if (err) {
-                        log4util.writeErr(res)
+                        log4util.writeErr(err.message)
                         return
                     }
-                    count.delalarm(item.id)
                 })
             } catch (error) {
                 log4util.writeInfo("请核对内容是否合法： " + item.context)
+            } finally {
+                await count.delalarm(item.id)
             }
-
         })
     } else {
         console.log("暂无告警")
@@ -49,4 +50,4 @@ setTimeout(async function() {
     // do something
     await getalarm()
     setTimeout(arguments.callee, 1000)
-}, 100)
+}, 1000)
