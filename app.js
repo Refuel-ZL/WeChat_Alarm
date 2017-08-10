@@ -6,17 +6,12 @@ const config = require("./config")
 async function getalarm() {
     var res = await count.alarm()
     if (res.length > 0) {
-        log4util.writeInfo(JSON.stringify(res))
         res.forEach(async(item) => {
-            // log4util.writeInfo(item)
+            log4util.writeInfo(item)
             try {
-                var content = JSON.parse(item.context)
+                // var content = JSON.parse(item.context)
                 var param = {
-                    msg: JSON.stringify({
-                        "type": content.groupType || "统计报告",
-                        "content": content.msg || item,
-                        "name": content.name || null
-                    })
+                    msg: item.context
                 }
                 param = require("querystring").stringify(param)
                 var options = {

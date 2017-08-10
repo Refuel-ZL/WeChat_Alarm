@@ -1,42 +1,33 @@
 "use strict"
 
 const mssql = require("mssql")
+const log4util = require("../log4js/log_utils")
 
 const config = require("./config").config
-var pool
 const Sqlutil = function() {
     // this.select()
 }
-Sqlutil.prototype.conpool = async function() {
-    if (!pool) {
-        pool = await mssql.connect(config)
-    }
-    return pool
-}
-
 Sqlutil.prototype.select = async function(sql) {
-    var that = this
     try {
-        pool = await that.conpool()
+        let pool = await new mssql.ConnectionPool(config).connect()
         var result = await pool.request().query(sql)
         return result.recordset
     } catch (err) {
-        // throw new Error("SQL Select")
-        console.dir(err)
+        log4util.writeErr(err.message)
+        return ""
     }
+
 
 }
 Sqlutil.prototype.insert = async function(sql) {
-    var that = this
     try {
-        pool = await that.conpool()
-        var result = pool.request().query(sql)
+        let pool = await new mssql.ConnectionPool(config).connect()
+        var result = await pool.request().query(sql)
         return result
     } catch (err) {
-        // throw new Error("SQL Select")
-        console.dir(err)
+        log4util.writeErr(err.message)
+        return ""
     }
-
 }
 
 
