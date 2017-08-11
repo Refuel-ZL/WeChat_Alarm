@@ -5,6 +5,7 @@ const config = require("./config")
 
 async function getalarm() {
     var res = await count.alarm()
+    res = res === "" ? res : res.recordset
     if (res.length > 0) {
         res.forEach(async(item) => {
             log4util.writeInfo(item)
