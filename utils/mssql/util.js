@@ -1,53 +1,37 @@
+/*
+ * @Author: ZhaoLei 
+ * @Date: 2017-08-14 14:24:22 
+ * @Last Modified by: ZhaoLei
+ * @Last Modified time: 2017-08-14 14:24:53
+ */
+
 'use strict'
 
 var mssql = require('mssql')
-var log4util = require('../log4js/log_utils')
+const log4util = require('../log4js/log_utils')
 
 var config = require('./config').config
-var Sqlutil = function() {}
-
-
-Sqlutil.prototype.select = async function(sql) {
-    return new Promise(function(resolve, reject) {
-        try {
-            var connection = mssql.connect(config, function(err) {
-                if (err) {
-                    connection.close()
-                    reject(err)
-                    log4util.writeErr('数据库建立连接错误', err)
-                } else {
-                    let sqlReq = new mssql.Request(connection)
-                    sqlReq.query(sql, function(error, result) {
-                        connection.close()
-                        if (error) {
-                            log4util.writeErr('执行sql语句错误', error)
-                            reject(error)
-                        } else {
-                            resolve(result)
-                        }
-                    })
-                }
-            })
-        } catch (error) {
-            log4util.writeErr('操作数据库异常', error)
-            reject(error)
-        }
-    })
+const Sqlutil = function() {}
+Sqlutil.prototype.init = function(server, user, password, database) {
+    config.user = user
+    config.password = password
+    config.server = server
+    config.database = database
 }
-Sqlutil.prototype.insert = function(sql) {
+
+Sqlutil.prototype.query = async function(sql) {
     return new Promise(function(resolve, reject) {
+        var connection = null
         try {
-            var connection = mssql.connect(config, function(err) {
+            connection = new mssql.ConnectionPool(config, function(err) {
                 if (err) {
                     connection.close()
                     reject(err)
-                    log4util.writeErr('数据库建立连接错误', err)
                 } else {
-                    let sqlReq = new mssql.Request(connection)
+                    let sqlReq = connection.request()
                     sqlReq.query(sql, function(error, result) {
                         connection.close()
                         if (error) {
-                            log4util.writeErr('执行sql语句错误', error)
                             reject(error)
                         } else {
                             resolve(result)
@@ -56,7 +40,9 @@ Sqlutil.prototype.insert = function(sql) {
                 }
             })
         } catch (error) {
-            log4util.writeErr('操作数据库异常', error)
+            if (connection) {
+                connection.close()
+            }
             reject(error)
         }
 

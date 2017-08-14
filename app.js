@@ -5,10 +5,11 @@ const config = require('./config')
 
 async function getalarm() {
     try {
-        var res = await count.alarm()
+        var res = (await count.alarm()).recordset
         if (res.length > 0) {
             res.forEach(async(item) => {
                 log4util.writeInfo(item)
+                await count.delalarm(item.id)
                 try {
                     var param = {
                         msg: item.context
@@ -23,7 +24,7 @@ async function getalarm() {
                             'Content-Length': param.length
                         }
                     }
-                    request(options, async(err, res, body) => {
+                    request(options, (err, res, body) => {
                         if (err) {
                             log4util.writeErr('提交微信接口失败', err.message)
                             return
@@ -34,22 +35,18 @@ async function getalarm() {
                     })
                 } catch (error) {
                     log4util.writeInfo('请核对内容是否合法： ' + item.context)
-                } finally {
-                    await count.delalarm(item.id)
                 }
             })
         } else {
             console.log('暂无告警')
         }
     } catch (error) {
-        log4util.writeErr('监测告警错误', error)
+        log4util.writeErr('监测告警异常', error)
     }
 
 }
 
-
 setTimeout(async function() {
-    // do something
     await getalarm()
     setTimeout(arguments.callee, 1000)
-}, 1000)
+}, 0)
